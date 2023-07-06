@@ -1,0 +1,101 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+
+#include "EngineMinimal.h"
+#include "GameFramework/PlayerController.h"
+
+
+#include "CoreMinimal.h"
+#include "Cannon.h"
+#include "GameFramework/Pawn.h"
+
+#include "TankPawn.generated.h"
+
+
+class UStaticMeshComponent;
+class UCameraComponent;
+class USpringArmComponent;
+class ATankPlayerController;
+class ATankAIController;
+class ACannon;
+
+
+UCLASS()
+class TANKOGEDDON_API ATankPawn : public APawn
+{
+	GENERATED_BODY()
+
+public:
+	// Sets default values for this pawn's properties
+	ATankPawn();
+
+protected:
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		UStaticMeshComponent* BodyMesh = nullptr;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		UStaticMeshComponent* TurretMesh = nullptr;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		USpringArmComponent* SpringArm = nullptr;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		UCameraComponent* Camera = nullptr;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		UArrowComponent* CannonSetupPoint = nullptr;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
+		float MoveSpeed = 100.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
+		float RotationSpeed = 100.0f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
+		float InterpolationKey = 0.1f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Speed")
+		float TurretRotationInterpolationKey = 0.5f;
+
+	float TargetForwardAxisValue = 0.0f;
+	float TargetRightAxisValue = 0.0f;
+	float CurrentRightAxisValue = 0.0f;
+
+	UPROPERTY()
+		ATankPlayerController* TankController = nullptr;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
+		TSubclassOf<ACannon> CannonClass;
+	UPROPERTY()
+		ACannon* Cannon;
+	
+
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+	void SetupCannon();
+
+public:	
+	UFUNCTION()
+		void MoveForward(float AxisValue);
+	UFUNCTION()
+		void RotateRight(float AxisValue);
+	UFUNCTION()
+		void Fire();
+	UFUNCTION()
+		void FireSpecial();
+	UFUNCTION()
+		FVector GetTurretForwardVector();
+	UFUNCTION()
+		void RotateTurretTo(FVector TargetPosition);
+
+	//FVector GetEyesPosition();
+	
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+private:
+
+	void TankMovement(float DeltaTime);
+	void TankRotation(float DeltaTime);
+	void TurretRotation();
+
+};
